@@ -74,35 +74,23 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
                 ratio4 = (x - left_x4) / (right_x4 - left_x4)
                 
                 ###TODO - Faire tous les interpalated gauche - 1 tier - 2 tiers - right
-                interpolated_color1 = (1 - ratio1) * color_pixel_left1 + ratio1 * color_pixel_right1
-                interpolated_color2 = (1 - ratio2) * color_pixel_left2 + ratio2 * color_pixel_right2
-                interpolated_color3 = (1 - ratio3) * color_pixel_left3 + ratio3 * color_pixel_right3
-                interpolated_color4 = (1 - ratio4) * color_pixel_left4 + ratio4 * color_pixel_right4
+                interpolated_color1 = (1 - ratio1) * color_pixel_left1 + ratio1 * color_pixel_one_third1
+                interpolated_color2 = (1 - ratio2) * color_pixel_left2 + ratio2 * color_pixel_one_third2
+                interpolated_color3 = (1 - ratio3) * color_pixel_left3 + ratio3 * color_pixel_one_third3
+                interpolated_color4 = (1 - ratio4) * color_pixel_left4 + ratio4 * color_pixel_one_third4
                 
-                interpolated_color5 = (1 - ratio1) * color_pixel_left1 + ratio1 * color_pixel_one_third1
-                interpolated_color6 = (1 - ratio2) * color_pixel_left2 + ratio2 * color_pixel_one_third2
-                interpolated_color7 = (1 - ratio3) * color_pixel_left3 + ratio3 * color_pixel_one_third3
-                interpolated_color8 = (1 - ratio4) * color_pixel_left4 + ratio4 * color_pixel_one_third4
+                interpolated_color5 = (1 - ratio1) * color_pixel_one_third1 + ratio1 * color_pixel_two_thirds1
+                interpolated_color6 = (1 - ratio2) * color_pixel_one_third2 + ratio2 * color_pixel_two_thirds2
+                interpolated_color7 = (1 - ratio3) * color_pixel_one_third3 + ratio3 * color_pixel_two_thirds3
+                interpolated_color8 = (1 - ratio4) * color_pixel_one_third4 + ratio4 * color_pixel_two_thirds4
                 
-                interpolated_color9 = (1 - ratio1) * color_pixel_left1 + ratio1 * color_pixel_two_thirds1
-                interpolated_color10 = (1 - ratio2) * color_pixel_left2 + ratio2 * color_pixel_two_thirds2
-                interpolated_color11 = (1 - ratio3) * color_pixel_left3 + ratio3 * color_pixel_two_thirds3
-                interpolated_color12 = (1 - ratio4) * color_pixel_left4 + ratio4 * color_pixel_two_thirds4
-                
+                interpolated_color9 = (1 - ratio1) * color_pixel_two_thirds1 + ratio1 * color_pixel_right1
+                interpolated_color10 = (1 - ratio2) * color_pixel_two_thirds2 + ratio2 * color_pixel_right2
+                interpolated_color11 = (1 - ratio3) * color_pixel_two_thirds3 + ratio3 * color_pixel_right3
+                interpolated_color12 = (1 - ratio4) * color_pixel_two_thirds4 + ratio4 * color_pixel_right4
                 
 
-                interpolated_color = (interpolated_color1 + interpolated_color2 + interpolated_color3 + interpolated_color4) / 4
-                gradient_linear[y, x] = interpolated_color
-
-                # Check if any interpolated_color is None
-                if (interpolated_color1 is not None and
-                    interpolated_color2 is not None and
-                    interpolated_color3 is not None and
-                    interpolated_color4 is not None):
-                    interpolated_color = (interpolated_color1 + interpolated_color2 + interpolated_color3 + interpolated_color4) / 4
-                else:
-                    interpolated_color = (interpolated_color1 or interpolated_color2 or interpolated_color3 or interpolated_color4)
-
+                interpolated_color = (interpolated_color1 + interpolated_color2 + interpolated_color3 + interpolated_color4 + interpolated_color5 + interpolated_color6 + interpolated_color7 + interpolated_color8 + interpolated_color9 + interpolated_color10 + interpolated_color11 + interpolated_color12) / 12
                 gradient_linear[y, x] = interpolated_color
 
         cv2.imwrite('images/gradient_12_points.jpg', gradient_linear)
@@ -116,7 +104,7 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
         return image_color  # Return the original image
 
 # Load the grayscale image
-image_gray = cv2.imread('images/niveau_de_gris.jpg', cv2.IMREAD_GRAYSCALE)
+image_gray = cv2.imread('images/barnard_stacked_gradient.png', cv2.IMREAD_GRAYSCALE)
 
 # Load the color image
 image_color = cv2.imread('images/barnard_stacked_gradient.png')
@@ -126,7 +114,7 @@ if image_gray is None or image_color is None:
     print("Failed to load one or more images.")
 else:
     num_columns_to_check = 1
-    threshold_value = 10
+    threshold_value = 128
 
     depolluted_image = remove_light_pollution(image_color, image_gray, num_columns_to_check, threshold_value)
 
