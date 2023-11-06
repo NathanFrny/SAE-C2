@@ -19,22 +19,22 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
         return None
 
     left_x1 = find_left_point(range(num_columns), range(height))
-    right_x1 = find_right_point(range(width - 1, width - num_columns - 1, -1), range(height))
+    right_x1 = find_right_point(range(width - num_columns), range(height))
     one_third_x1 = width // 3
     two_thirds_x1 = 2 * (width // 3)
 
     left_x2 = find_left_point(range(one_third_x1 - 1, one_third_x1 + 2), range(height))
-    right_x2 = find_right_point(range(two_thirds_x1 - 1, two_thirds_x1 + 2), range(height))
+    right_x2 = find_right_point(range(width - num_columns), range(height))
     one_third_x2 = one_third_x1
     two_thirds_x2 = two_thirds_x1
 
     left_x3 = find_left_point(range(one_third_x2 - 1, one_third_x2 + 2), range(height))
-    right_x3 = find_right_point(range(two_thirds_x2 - 1, two_thirds_x2 + 2), range(height))
+    right_x3 = find_right_point(range(width - num_columns), range(height))
     one_third_x3 = one_third_x2
     two_thirds_x3 = two_thirds_x2
 
     left_x4 = find_left_point(range(one_third_x3 - 1, one_third_x3 + 2), range(height))
-    right_x4 = find_right_point(range(two_thirds_x3 - 1, two_thirds_x3 + 2), range(height))
+    right_x4 = find_right_point(range(width - num_columns), range(height))
     one_third_x4 = one_third_x3
     two_thirds_x4 = two_thirds_x3
 
@@ -73,7 +73,6 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
                 ratio3 = (x - left_x3) / (right_x3 - left_x3)
                 ratio4 = (x - left_x4) / (right_x4 - left_x4)
                 
-                ###TODO - Faire tous les interpalated gauche - 1 tier - 2 tiers - right
                 interpolated_color1 = (1 - ratio1) * color_pixel_left1 + ratio1 * color_pixel_one_third1
                 interpolated_color2 = (1 - ratio2) * color_pixel_left2 + ratio2 * color_pixel_one_third2
                 interpolated_color3 = (1 - ratio3) * color_pixel_left3 + ratio3 * color_pixel_one_third3
