@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Charger l'image astronomique
-image_astronomique = cv2.imread('images/barnard_stacked_gradient.png.jpg', cv2.IMREAD_GRAYSCALE)
+image_astronomique = cv2.imread('images/barnard_stacked_gradient.png', cv2.IMREAD_GRAYSCALE)
 
 # Appliquer la détection de Sobel pour calculer le gradient
 gradient_x = cv2.Sobel(image_astronomique, cv2.CV_64F, 1, 0, ksize=5)

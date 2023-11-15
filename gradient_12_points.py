@@ -91,7 +91,8 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
 
                 interpolated_color = (interpolated_color1 + interpolated_color2 + interpolated_color3 + interpolated_color4 + interpolated_color5 + interpolated_color6 + interpolated_color7 + interpolated_color8 + interpolated_color9 + interpolated_color10 + interpolated_color11 + interpolated_color12) / 12
                 gradient_linear[y, x] = interpolated_color
-
+        
+        
         cv2.imwrite('images/gradient_12_points.jpg', gradient_linear)
 
         # Subtract the linear gradient from the color image
@@ -101,6 +102,7 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
     else:
         print("No point without stars found.")
         return image_color  # Return the original image
+    
 
 # Load the grayscale image
 image_gray = cv2.imread('images/barnard_stacked_gradient.png', cv2.IMREAD_GRAYSCALE)
