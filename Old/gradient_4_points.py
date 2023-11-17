@@ -71,7 +71,7 @@ def remove_light_pollution(image_color, image_gray, num_columns, threshold):
 image_gray = cv2.imread('images/niveau_de_gris.jpg', cv2.IMREAD_GRAYSCALE)
 
 # Load the color image
-image_color = cv2.imread('images/barnard_stacked_gradient.png')
+image_color = cv2.imread('images/unknown.png')
 
 # Check if the images were loaded successfully
 if image_gray is None or image_color is None:
