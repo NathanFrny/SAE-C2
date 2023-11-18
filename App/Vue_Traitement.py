@@ -35,6 +35,7 @@ class Vue_Traitement(QWidget):
         # Spacer Init to make space between widgets
         spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
+        # left side of the window
         
         # QComboBox used to select the method
         self.comboBox = QComboBox(self)
@@ -94,8 +95,13 @@ class Vue_Traitement(QWidget):
         self.blur_widget = SliderWidget(0, 100, 0)
         self.leftlayout.addWidget(self.blur_widget)
             
+            
+        # QPushButton used to generate the image
+        self.generate = QPushButton("Générer l'image")
+        self.leftlayout.addWidget(self.generate)
         
         
+        # right side of the window
         
         # Display the image
         self.image: ImageWidget = ImageWidget()
@@ -137,14 +143,15 @@ class Vue_Traitement(QWidget):
         self.gamma_checkbox.stateChanged.connect(self.control_gamma_signal)
         self.saturation_checkbox.stateChanged.connect(self.control_saturation_signal)
         self.blur_checkbox.stateChanged.connect(self.control_blur_signal)
+        
 
         # Initialize signals
         self.control_gamma_signal()
         self.control_saturation_signal()
         self.control_blur_signal()
 
-    # Callback methods
 
+    # Callback methods
     def control_gamma_signal(self):
         if self.gamma_checkbox.isChecked():
             self.gamma_widget.valueChanged.emit(self.gammaValue)
@@ -156,7 +163,9 @@ class Vue_Traitement(QWidget):
     def control_blur_signal(self):
         if self.blur_checkbox.isChecked():
             self.blur_widget.valueChanged.emit(self.blurValue)
-        
+    
+    def generate_signal(self):
+        self.generate.clicked.emit()
             
         
 
@@ -194,12 +203,13 @@ class Vue_Traitement(QWidget):
     def load_image(self):
         chemin = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
         if chemin:
-            imageload = cv2.imread(chemin)
-            imageload = cv2.cvtColor(imageload, cv2.COLOR_BGR2RGB)  
+            import numpy as np
+            from matplotlib.pyplot import imread
+            img : np.ndarray = imread(chemin)/255
             
             self.load_label.setText(f"Image chargée : {chemin}")
             
-            self.image.setPixmap(imageload)
+            self.image.setPixmap(img)
             
             
             
