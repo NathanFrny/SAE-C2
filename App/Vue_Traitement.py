@@ -1,16 +1,25 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
+from PyQt6.QtGui import QPixmap, QImage, QIntValidator
+from PyQt6.QtCore import Qt, pyqtSignal
 import cv2
 from ImageWidget import ImageWidget
+from SliderWidget import SliderWidget
 
 #class vue affichage interface traitement d'image
 class Vue_Traitement(QWidget):
+    
+    gammaValue : pyqtSignal = pyqtSignal(int)
+    saturationValue : pyqtSignal = pyqtSignal(int)
+    blurValue : pyqtSignal = pyqtSignal(int)
+
+
+    
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Traitement d'images")
-        self.resize(800, 500)
+        self.setFixedSize(800, 500)
+        
         self.mainlayout = QHBoxLayout()
         
         # left side of the window
@@ -23,6 +32,10 @@ class Vue_Traitement(QWidget):
         self.rightlayout = QVBoxLayout()
         self.right.setLayout(self.rightlayout)
         
+        # Spacer Init to make space between widgets
+        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        
         # QComboBox used to select the method
         self.comboBox = QComboBox(self)
         self.comboBox.addItem("Choisir une méthode")
@@ -31,7 +44,6 @@ class Vue_Traitement(QWidget):
         self.comboBox.addItem("Methode 3")
         
         # used to display the dynamic content of the QComboBox
-        self.comboBox.currentIndexChanged.connect(self.on_combobox_changed)
         self.leftlayout.addWidget(self.comboBox)
 
         self.dynamic_content_label = QLabel(self)
@@ -48,37 +60,41 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.load)
         self.leftlayout.addWidget(self.load_label)
         self.setLayout(self.leftlayout)
-        self.load.clicked.connect(self.load_image)
         
         # QSpacerItem used to add space between widgets
-        spacer = QSpacerItem(40, 40, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.leftlayout.addItem(spacer)
         
+        # QCheckBox used to select the filters
+        self.gamma_checkbox = QCheckBox("Gamma")
+        self.leftlayout.addWidget(self.gamma_checkbox)
+        
         # QSlider used to change the brightness of the image
-        self.gamma_label = QLabel("Gamma")
-        self.leftlayout.addWidget(self.gamma_label)
-        self.gamma = QSlider()
-        self.gamma.setMinimum(0)
-        self.gamma.setMaximum(50)
-        self.gamma.setOrientation(Qt.Orientation.Horizontal)
-        self.gamma.setTickPosition(QSlider.TickPosition.TicksBelow)
-        self.gamma.setTickInterval(5)
-        self.gamma.setValue(0)
-        self.gamma.setSingleStep(1)
-        self.gamma.setPageStep(1)
-        self.gamma.setTracking(True)
-        self.gamma.setSliderPosition(0)
-        self.leftlayout.addWidget(self.gamma)
+        self.gamma_widget = SliderWidget(0, 100, 0)
+        self.leftlayout.addWidget(self.gamma_widget)
         
         # QSpacerItem used to add space between widgets
         self.leftlayout.addItem(spacer)
 
         # QCheckBox used to select the filters
-        self.saturation = QCheckBox("Saturation")
-        self.leftlayout.addWidget(self.saturation)
+        self.saturation_checkbox = QCheckBox("Saturation")
+        self.leftlayout.addWidget(self.saturation_checkbox)
+    
+        # QSlider used to change the saturation of the image
+        self.saturation_widget = SliderWidget(0, 100, 0)
+        self.leftlayout.addWidget(self.saturation_widget)
         
-        self.blur = QCheckBox("Blur")
-        self.leftlayout.addWidget(self.blur)
+        # QSpacerItem used to add space between widgets
+        self.leftlayout.addItem(spacer)
+        
+        
+        # QCheckBox used to select the filters
+        self.blur_checkbox = QCheckBox("Blur")
+        self.leftlayout.addWidget(self.blur_checkbox)
+        
+        self.blur_widget = SliderWidget(0, 100, 0)
+        self.leftlayout.addWidget(self.blur_widget)
+            
+        
         
         
         # Display the image
@@ -111,8 +127,38 @@ class Vue_Traitement(QWidget):
         # Add the left and right side to the main layout
         self.mainlayout.addWidget(self.left)
         self.mainlayout.addWidget(self.right)
+        
+        # Add the widget to the right layout
         self.rightlayout.addWidget(self.change)
+        
+        # Connecting Callback
+        self.comboBox.currentIndexChanged.connect(self.on_combobox_changed)
+        self.load.clicked.connect(self.load_image)
+        self.gamma_checkbox.stateChanged.connect(self.control_gamma_signal)
+        self.saturation_checkbox.stateChanged.connect(self.control_saturation_signal)
+        self.blur_checkbox.stateChanged.connect(self.control_blur_signal)
 
+        # Initialize signals
+        self.control_gamma_signal()
+        self.control_saturation_signal()
+        self.control_blur_signal()
+
+    # Callback methods
+
+    def control_gamma_signal(self):
+        if self.gamma_checkbox.isChecked():
+            self.gamma_widget.valueChanged.emit(self.gammaValue)
+       
+    def control_saturation_signal(self):
+        if self.saturation_checkbox.isChecked():
+            self.saturation_widget.valueChanged.emit(self.saturationValue)
+       
+    def control_blur_signal(self):
+        if self.blur_checkbox.isChecked():
+            self.blur_widget.valueChanged.emit(self.blurValue)
+        
+            
+        
 
     # Display different content based on the selected option
     def on_combobox_changed(self, index):
@@ -151,7 +197,7 @@ class Vue_Traitement(QWidget):
             imageload = cv2.imread(chemin)
             imageload = cv2.cvtColor(imageload, cv2.COLOR_BGR2RGB)  
             
-            self.label.setText(f"Image chargée : {chemin}")
+            self.load_label.setText(f"Image chargée : {chemin}")
             
             self.image.setPixmap(imageload)
             
