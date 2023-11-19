@@ -1,7 +1,30 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# Authors : Fourny Nathan
+# Copyright (C) 2023 Fourny Nathan
+# 
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Imports
 from __future__ import annotations
 from .ImageDecorator import ImageDecorator
 import cv2
+# ----------------------------------------------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Class
 class Image(ImageDecorator):
     """
     Class representing an image with the ability to apply decorators for image processing.
@@ -81,3 +104,4 @@ class Image(ImageDecorator):
         for decorator in self.decorators:
             if isinstance(decorator, decorator_type):
                 self.decorators.remove(decorator)
+# ----------------------------------------------------------------------------------------------------------------------

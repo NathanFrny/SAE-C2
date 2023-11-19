@@ -5,7 +5,7 @@ a = Analysis(
     ['C:\\Users\\Asus\\Desktop\\BUT\\S2\\R2-07\\SAE\\Git\\SAE-C2\\App\\Controlleur.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/modifiers', 'modifiers/'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/gradient', 'gradient/'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/ImageWidget.py', '.'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/SliderWidget.py', '.'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/Vue_Traitement.py', '.'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/images', 'images/')],
+    datas=[('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/images', 'images/'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/modifiers', 'modifiers/'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/gradient', 'gradient/'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/ImageWidget.py', '.'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/SliderWidget.py', '.'), ('C:/Users/Asus/Desktop/BUT/S2/R2-07/SAE/Git/SAE-C2/App/Vue_Traitement.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

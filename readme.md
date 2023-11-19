@@ -83,3 +83,4 @@ Notre application possède les fonctionnalitées suivantes :
 * Lorsque vous voulez soustraire un gradient à une image (gradient en paramètre). Le gradient doit impérativement faire la même taille que l'image.
 * Code entièrement écrit en anglais
 * Pour une réutilisation référez-vous aux informations mises en début de chaque script
+* Changer d'image (suivant et précédent) ne va pas sauvegarder vos modifications
