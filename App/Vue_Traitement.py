@@ -6,6 +6,8 @@ from PyQt6.QtCore import Qt, pyqtSignal
 import cv2
 from ImageWidget import ImageWidget
 from SliderWidget import SliderWidget
+import numpy as np
+from matplotlib.pyplot import imread
 
 #class vue affichage interface traitement d'image
 class Vue_Traitement(QWidget):
@@ -144,38 +146,48 @@ class Vue_Traitement(QWidget):
         self.gamma_checkbox.stateChanged.connect(self.control_gamma_signal)
         self.saturation_checkbox.stateChanged.connect(self.control_saturation_signal)
         self.blur_checkbox.stateChanged.connect(self.control_blur_signal)
-        
+        self.previous.clicked.connect(self.show_previous_image)
+        self.next.clicked.connect(self.show_next_image)
 
         # Initialize signals
         self.control_gamma_signal()
         self.control_saturation_signal()
         self.control_blur_signal()
+        
+        # Init var for multiple images
+        # Stock the loaded images in a list
+        self.loaded_images = []
+        self.current_image_index = 0
 
 
     # Callback methods
+    # signal and update for the gamma filter
     def control_gamma_signal(self):
         if self.gamma_checkbox.isChecked():
             self.gamma_widget.valueChanged.emit(self.gammaValue)
             self.gammaValue.emit(self.gammaValue)
             self.update_image("gamma")
-       
+    
+    # signal and update for the saturation filter
     def control_saturation_signal(self):
         if self.saturation_checkbox.isChecked():
             self.saturation_widget.valueChanged.emit(self.saturationValue)
             self.saturationValue.emit(self.saturationValue)
             self.update_image("saturation")
-       
+            
+    # signal and update for the blur filter
     def control_blur_signal(self):
         if self.blur_checkbox.isChecked():
             self.blur_widget.valueChanged.emit(self.blurValue)
             self.blurValue.emit(self.blurValue)
             
             self.update_image("blur")
+            
+    # signal for the generate button
     def generate_signal(self):
         self.generate.clicked.emit()
             
-        
-
+    
     # Display different content based on the selected option
     def on_combobox_changed(self, index):
         selected_option = self.comboBox.currentText()
@@ -210,21 +222,39 @@ class Vue_Traitement(QWidget):
     def load_image(self):
         chemin = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
         if chemin:
-            import numpy as np
-            from matplotlib.pyplot import imread
-            img : np.ndarray = imread(chemin)/255
-
-          
-            
+            img = imread(chemin)/255
+            self.loaded_images.append(img)
+            self.current_image_index = len(self.loaded_images) - 1
             self.load_label.setText(f"Image chargée : {chemin}")
             
             self.image.setPixmap(img)
             
-    #TODO: Fonction qui permet d'ajouter ou retirer les décorateurs à l'image
+    #Methode use to apply the decorator on the image
     def update_image(self: Vue_Traitement, decorator):
-        print(decorator)
-            
-            
+        if len(self.loaded_images) > 0:
+            img : np.ndarray = self.loaded_images[self.current_image_index]
+            img.apply(decorator)
+            img : np.ndarray = img/255
+            self.image.setPixmap(img)
+
+    # Method to select the previous image
+    def show_previous_image(self):
+        if len(self.loaded_images) > 1:
+            self.current_image_index = (self.current_image_index - 1) % len(self.loaded_images)
+            self.show_current_image()
+    
+    # Method to select the next image
+    def show_next_image(self):
+        if len(self.loaded_images) > 1:
+            self.current_image_index = (self.current_image_index + 1) % len(self.loaded_images)
+            self.show_current_image()
+    
+    # Method used to display the current image
+    def show_current_image(self):
+        self.image.setPixmap(self.loaded_images[self.current_image_index])
+    
+    
+                 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     fenetre = Vue_Traitement()
