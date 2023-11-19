@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
 from PyQt6.QtGui import QPixmap, QImage, QIntValidator
@@ -155,15 +156,21 @@ class Vue_Traitement(QWidget):
     def control_gamma_signal(self):
         if self.gamma_checkbox.isChecked():
             self.gamma_widget.valueChanged.emit(self.gammaValue)
+            self.gammaValue.emit(self.gammaValue)
+            self.update_image("gamma")
        
     def control_saturation_signal(self):
         if self.saturation_checkbox.isChecked():
             self.saturation_widget.valueChanged.emit(self.saturationValue)
+            self.saturationValue.emit(self.saturationValue)
+            self.update_image("saturation")
        
     def control_blur_signal(self):
         if self.blur_checkbox.isChecked():
             self.blur_widget.valueChanged.emit(self.blurValue)
-    
+            self.blurValue.emit(self.blurValue)
+            
+            self.update_image("blur")
     def generate_signal(self):
         self.generate.clicked.emit()
             
@@ -213,6 +220,9 @@ class Vue_Traitement(QWidget):
             
             self.image.setPixmap(img)
             
+    #TODO: Fonction qui permet d'ajouter ou retirer les décorateurs à l'image
+    def update_image(self: Vue_Traitement, decorator):
+        print(decorator)
             
             
 if __name__ == "__main__":
