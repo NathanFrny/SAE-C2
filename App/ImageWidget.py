@@ -26,8 +26,42 @@ import numpy as np
 # --- class ImageWidget(QWidget) -------------------------------------------------------
 # ------------------------------------------------------------------------------------------
 class ImageWidget(QWidget):
+    """
+    A custom widget for displaying images.
+
+    Attributes:
+        label (QLabel): QLabel for displaying the image.
+        imagePixmap (QPixmap): QPixmap representing the image.
+
+    Methods:
+        __init__(self: Self, colorData: np.ndarray | None = None) -> None:
+            Initializes the ImageWidget with optional initial color data.
+
+        resize(self: Self) -> None:
+            Resizes the widget and scales the image pixmap accordingly.
+
+        resizeEvent(self: Self, event: QResizeEvent) -> None:
+            Handles resize events to ensure the image is appropriately scaled.
+
+        setPixmap(self: Self, colorData: np.ndarray | None = None) -> QPixmap:
+            Sets the image pixmap based on the provided color data.
+
+        setQPixmap(self: Self, qPixmap: QPixmap) -> None:
+            Sets the image pixmap directly using a QPixmap.
+
+        getPixmap(self: Self) -> QPixmap:
+            Returns the current image pixmap.
+
+    """
 
     def __init__(self: Self,colorData : np.ndarray|None = None) -> None:
+        """
+        Initializes the ImageWidget.
+
+        Args:
+            colorData (np.ndarray | None): Optional initial color data for the image.
+
+        """
         super().__init__()
 
         self.label : QLabel = QLabel(self)   # create a QtLabel for pixmap
@@ -40,16 +74,34 @@ class ImageWidget(QWidget):
     # methods
     # -------------------------------------------------- 
     def resize(self : Self)-> None:
+        """
+        Resizes the widget and scales the image pixmap accordingly.
+
+        """
         self.label.resize(self.size())
         self.label.setPixmap(self.imagePixmap.scaled(self.size(),Qt.AspectRatioMode.KeepAspectRatio))
 
     # -------------------------------------------------- 
     def resizeEvent(self : Self,event :QResizeEvent)-> None:
+        """
+        Handles resize events to ensure the image is appropriately scaled.
+
+        Args:
+            event (QResizeEvent): The resize event.
+
+        """
         self.resize()
         super().resizeEvent(event)
 
     # -------------------------------------------------- 
     def setPixmap(self: Self, colorData :  np.ndarray|None = None) -> QPixmap:
+        """
+        Handles resize events to ensure the image is appropriately scaled.
+
+        Args:
+            event (QResizeEvent): The resize event.
+
+        """
         if not isinstance(colorData, np.ndarray): colorData = ImageWidget.emptyImageColorData()
 
         height, width , channel  = colorData.shape   
@@ -67,14 +119,36 @@ class ImageWidget(QWidget):
 
     # -------------------------------------------------- 
     def setQPixmap(self: Self, qPixmap : QPixmap)-> None:
+        """
+        Handles resize events to ensure the image is appropriately scaled.
+
+        Args:
+            event (QResizeEvent): The resize event.
+
+        """
         self.imagePixmap = qPixmap
         self.resize()
         
     def getPixmap(self: Self)-> QPixmap:
+        """
+        Handles resize events to ensure the image is appropriately scaled.
+
+        Args:
+            event (QResizeEvent): The resize event.
+
+        """
         return self.imagePixmap
 
     # -------------------------------------------------- 
     @staticmethod
-    def emptyImageColorData()-> np.ndarray: return np.ones((90,160,3))*(220/255) 
+    def emptyImageColorData()-> np.ndarray:
+        """
+        Returns an example of empty image color data.
+
+        Returns:
+            np.ndarray: Example color data for an empty image.
+
+        """
+        return np.ones((90,160,3))*(220/255) 
 
 # -------------------------------------------------------------------------------------------

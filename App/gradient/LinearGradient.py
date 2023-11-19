@@ -4,11 +4,35 @@ import cv2
 import numpy as np
 
 class LinearGradient(GradientStrategy):
+    """
+    A class representing a linear gradient subtraction strategy. It create a gradient by interpolating between four points on the image. Then it subtracts the gradient from the image.
 
+    Attributes:
+        path (str): The path to the image.
+
+    Methods:
+        generate(self: LinearGradient) -> np.ndarray:
+            Generate a depolluted image using linear gradient subtraction.
+
+    """
     def __init__(self: LinearGradient, path):
+        """
+        Initializes a LinearGradient object.
+
+        Parameters:
+            path (str): The path to the image.
+
+        """
         self.path = path
 
     def generate(self: LinearGradient):
+        """
+        Generate a depolluted image using linear gradient subtraction.
+
+        Returns:
+            np.ndarray: The depolluted image.
+
+        """
         image = cv2.imread(self.path)
         image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -29,6 +53,19 @@ class LinearGradient(GradientStrategy):
             return depolluted_image
 
     def remove_light_pollution(self: LinearGradient, image_color, image_gray, num_columns, threshold):
+        """
+        Remove light pollution from the image using linear gradient subtraction.
+
+        Parameters:
+            image_color (np.ndarray): The color image.
+            image_gray (np.ndarray): The grayscale image.
+            num_columns (int): The number of columns to check for light pollution.
+            threshold (int): The threshold value.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]: The depolluted image and the linear gradient.
+
+        """
         height, width, _ = image_color.shape
 
         # Find the point without stars on the left side of the grayscale image

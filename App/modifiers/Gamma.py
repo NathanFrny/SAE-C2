@@ -5,10 +5,36 @@ import cv2
 
 
 class Gamma(ImageDecorator):
+    """
+    A class representing the Gamma decorator for image processing.
+
+    Attributes:
+        gamma (float): The gamma parameter for the gamma correction.
+
+    Methods:
+        __init__(self, gamma: float): Initializes the Gamma decorator with the given gamma value.
+
+        apply(self, image): Applies the gamma correction to the input image.
+
+    """
     def __init__(self: Gamma, gamma: float):
+        """
+        Initializes the Gamma decorator with the given gamma value.
+
+        Args:
+            gamma (float): The gamma parameter for the gamma correction.
+
+        """
         self.gamma = gamma
 
     def apply(self, image):
+        """
+        Initializes the Gamma decorator with the given gamma value.
+
+        Args:
+            gamma (float): The gamma parameter for the gamma correction.
+
+        """
         print("Gamma")
         # Séparer les canaux de couleur
         blue, green, red = cv2.split(image)

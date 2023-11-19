@@ -3,7 +3,12 @@ from abc import ABC, abstractmethod
 
 class ImageDecorator(ABC):
     """
-    Abstract interface for images decorators.
+    Abstract interface for image decorators.
+
+    Methods:
+        apply(self: ImageDecorator):
+            Applies a modification to an image.
+
     """
     @abstractmethod
     def apply(self: ImageDecorator):

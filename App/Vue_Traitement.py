@@ -2,20 +2,61 @@ from __future__ import annotations
 import sys
 import os
 import numpy as np
+from matplotlib.pyplot import imread
 from io import BytesIO
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
-from PyQt6.QtGui import QPixmap, QImage, QIntValidator
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
+from PyQt6.QtCore import pyqtSignal
 from modifiers import Blur, Saturation, Gamma, Image
 from gradient import GradientSelector, GradientStrategy, LinearGradient, SubtractGradient
-import cv2
 from PIL import Image as PILImage
 from ImageWidget import ImageWidget
 from SliderWidget import SliderWidget
 
 #class vue affichage interface traitement d'image
 class Vue_Traitement(QWidget):
-    
+    """
+    Class for the image processing interface.
+
+    Attributes:
+        gammaValue (pyqtSignal): Signal emitted when the gamma value changes.
+        saturationValue (pyqtSignal): Signal emitted when the saturation value changes.
+        blurValue (pyqtSignal): Signal emitted when the blur value changes.
+
+    Methods:
+        __init__(self): Initializes the Vue_Traitement class.
+
+        control_gamma_signal(self): Handles the signal and update for the gamma filter.
+
+        control_saturation_signal(self): Handles the signal and update for the saturation filter.
+
+        control_blur_signal(self): Handles the signal and update for the blur filter.
+
+        generate_signal(self): Handles the signal for the generate button.
+
+        on_combobox_changed(self, index): Handles the change in the QComboBox selection.
+
+        show_method_1_content(self): Displays explanation for Method 1.
+
+        show_method_2_content(self): Displays explanation for Method 2.
+
+        load_image(self): Loads an image.
+
+        update_image(self, decorator): Applies the decorator on the image.
+
+        on_generate_clicked(self): Handles the generate button click.
+
+        show_previous_image(self): Displays the previous image.
+
+        show_next_image(self): Displays the next image.
+
+        show_current_image(self): Displays the current image.
+
+        convert_to_jpg(self, img, path, ext): Converts the image to JPG format.
+
+        apply_styles(self): Applies styles to the interface.
+
+    """
+
     gammaValue : pyqtSignal = pyqtSignal(int)
     saturationValue : pyqtSignal = pyqtSignal(int)
     blurValue : pyqtSignal = pyqtSignal(int)
@@ -23,6 +64,10 @@ class Vue_Traitement(QWidget):
 
     
     def __init__(self):
+        """
+        Initializes the Vue_Traitement class with all the differents widgets to make the interface.
+
+        """
         super().__init__()
         self.setWindowTitle("Traitement d'images")
         self.setFixedSize(1000, 500)
@@ -49,7 +94,6 @@ class Vue_Traitement(QWidget):
         self.comboBox.addItem("Choisir une méthode")
         self.comboBox.addItem("Soustraction du gradient")
         self.comboBox.addItem("Gradient linéaire")
-        self.comboBox.addItem("Methode 3")
         
         # used to display the dynamic content of the QComboBox
         self.leftlayout.addWidget(self.comboBox)
@@ -77,7 +121,7 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.gamma_checkbox)
         
         # QSlider used to change the brightness of the image
-        self.gamma_widget = SliderWidget(1, 5, 1)
+        self.gamma_widget = SliderWidget(0, 5, 0)
         self.leftlayout.addWidget(self.gamma_widget)
         
         # QSpacerItem used to add space between widgets
@@ -99,7 +143,7 @@ class Vue_Traitement(QWidget):
         self.blur_checkbox = QCheckBox("Blur")
         self.leftlayout.addWidget(self.blur_checkbox)
         
-        self.blur_widget = SliderWidget(1, 5, 1)
+        self.blur_widget = SliderWidget(0, 5, 0)
         self.leftlayout.addWidget(self.blur_widget)
             
             
@@ -179,10 +223,17 @@ class Vue_Traitement(QWidget):
         self.gradient_method: GradientStrategy = None
         self.gradient_selector = GradientSelector()
 
+        # Apply styles to the interface
+        self.apply_styles()
+        
 
     # Callback methods
     # signal and update for the gamma filter
     def control_gamma_signal(self):
+        """
+        Handles the signal and update for the gamma filter.
+
+        """
         if self.gamma_checkbox.isChecked():
             if self.local_image:
                 self.local_image = self.local_image.add_decorator(self.gamma_decorator)
@@ -195,6 +246,10 @@ class Vue_Traitement(QWidget):
     
     # signal and update for the saturation filter
     def control_saturation_signal(self):
+        """
+        Handles the signal and update for the saturation filter.
+
+        """
         if self.saturation_checkbox.isChecked():
             if self.local_image:
                 self.local_image = self.local_image.add_decorator(self.saturation_decorator)
@@ -207,6 +262,10 @@ class Vue_Traitement(QWidget):
             
     # signal and update for the blur filter
     def control_blur_signal(self):
+        """
+        Handles the signal and update for the blur filter.
+
+        """
         if self.blur_checkbox.isChecked():
             if self.local_image:
                 self.local_image = self.local_image.add_decorator(self.blur_decorator)
@@ -219,11 +278,19 @@ class Vue_Traitement(QWidget):
             
     # signal for the generate button
     def generate_signal(self):
+        """
+        Handles the signal and update for the blur filter.
+
+        """
         self.generate.clicked.emit()
             
     
     # Display different content based on the selected option
-    def on_combobox_changed(self, index):
+    def on_combobox_changed(self):
+        """
+        Handles the change in the QComboBox selection.
+
+        """
         selected_option = self.comboBox.currentText()
 
         # Clear previous dynamic content
@@ -242,32 +309,38 @@ class Vue_Traitement(QWidget):
                 self.gradient_method = LinearGradient(self.path)
                 self.gradient_selector.method = self.gradient_method
             self.show_method_2_content()
-        elif selected_option == "Methode 3":
-            self.show_method_3_content()
-
+        
 
 
     def show_method_1_content(self):
-        # Implement the content for Method 1
-        self.dynamic_content_label.setText("Explication methode 1")
+        """
+        Displays explanation for Method 1.
 
+        """
+        # Implement the explanation for Method 1
+        self.dynamic_content_label.setText("Subtracts a given gradient from the image.")
+        self.dynamic_content_label.setText("Create a gradient by interpolating between four points on the image. \nThen it subtracts the gradient from the image.")
+        
     def show_method_2_content(self):
-        # Implement the content for Method 2
-        self.dynamic_content_label.setText("Explication methode 2")
+        """
+        Displays explanation for Method 2.
 
-    def show_method_3_content(self):
-        # Implement the content for Method 3
-        self.dynamic_content_label.setText("Explication methode 3")
+        """
+        # Implement the explanation for Method 2
+        self.dynamic_content_label.setText("Create a gradient by interpolating between four points on the image. \nThen it subtracts the gradient from the image.")
 
 
     # Load an image
     def load_image(self):
+        """
+        Loads an image.
+
+        """
         self.path = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
         self.local_image = Image(self.path)
         if self.gradient_method:
             self.gradient_method.path = self.path
         if self.path:
-            from matplotlib.pyplot import imread
             img : np.ndarray = imread(self.path)
 
             _, ext = os.path.splitext(self.path)
@@ -292,12 +365,23 @@ class Vue_Traitement(QWidget):
             
     #Methode use to apply the decorator on the image
     def update_image(self: Vue_Traitement, decorator):
+        """
+        Applies the decorator on the image.
+
+        Args:
+            decorator: Decorator to be applied.
+
+        """
         if self.path:
             self.local_image.apply(decorator)
             img : np.ndarray = self.local_image.image/255
             self.image.setPixmap(img)
 
     def on_generate_clicked(self: Vue_Traitement):
+        """
+        Handles the generate button click. Set the image to the generated image.
+
+        """
         if self.gradient_method:
             depolluted_image = self.gradient_selector.method.generate()
             img : np.ndarray = depolluted_image / 255
@@ -305,22 +389,45 @@ class Vue_Traitement(QWidget):
 
     # Method to select the previous image
     def show_previous_image(self):
+        """
+        Displays the previous image.
+
+        """
         if len(self.loaded_images) > 1:
             self.current_image_index = (self.current_image_index - 1) % len(self.loaded_images)
             self.show_current_image()
     
     # Method to select the next image
     def show_next_image(self):
+        """
+        Displays the next image.
+
+        """
         if len(self.loaded_images) > 1:
             self.current_image_index = (self.current_image_index + 1) % len(self.loaded_images)
             self.show_current_image()
     
     # Method used to display the current image
     def show_current_image(self):
+        """
+        Displays the current image.
+
+        """
         self.image.setPixmap(self.loaded_images[self.current_image_index])
     
     def convert_to_jpg(self: Vue_Traitement, img: np.ndarray, path: str, ext: str):
-        from matplotlib.pyplot import imread
+        """
+        Converts the image to JPG format.
+
+        Args:
+            img: Image to be converted.
+            path: File path of the image.
+            ext: File extension of the image.
+
+        Returns:
+            Tuple: Converted image and temporary path.
+
+        """
         img = PILImage.fromarray((img * 255).astype(np.uint8))
 
         img = img.convert('RGB')
@@ -340,6 +447,38 @@ class Vue_Traitement(QWidget):
         os.remove(temp_path)
 
         return img, temp_path
+    
+    # Method used to apply styles to the interface
+    def apply_styles(self):
+        """
+        Applies styles to the interface.
+
+        """
+        self.setStyleSheet("background-color: #FFFFFF; color: black;")
+
+        
+        button_style = "QPushButton { background-color: #4CAFDF; color: black; border: none; padding: 10px 20px; text-align: center; ""text-decoration: none; display: inline-block; font-size: 12px; margin: 2px 2px; cursor: pointer; border-radius: 10px; }""QPushButton:pressed { background-color: #3D7BCC; }"
+
+        self.load.setStyleSheet(button_style)
+        self.generate.setStyleSheet(button_style)
+        self.previous.setStyleSheet(button_style)
+        self.next.setStyleSheet(button_style)
+
+        checkbox_style = "QCheckBox { padding: 5px; color: #000000; }""QCheckBox::indicator { width: 15px; height: 15px; }""QCheckBox::indicator:unchecked { background-color: #4CAFDF; border: 1px solid #4CAFDF; }""QCheckBox::indicator:checked { background-color: #4D94FF; border: 1px solid #1E487A; }"
+
+        self.gamma_checkbox.setStyleSheet(checkbox_style)
+        self.saturation_checkbox.setStyleSheet(checkbox_style)
+        self.blur_checkbox.setStyleSheet(checkbox_style)
+        
+        slider_style =  "QSlider::groove:horizontal { height: 6px; background: #1E487A; }""QSlider::handle:horizontal { background: #4D94FF; border: 1px solid #000000; width: 18px; margin: -8px 0; border-radius: 9px; }" "QLineEdit {border: 1px solid #000000; border-radius: 5px; /* Rounded corners */padding: 2px;}"
+        self.gamma_widget.setStyleSheet(slider_style)
+        self.saturation_widget.setStyleSheet(slider_style)
+        self.blur_widget.setStyleSheet(slider_style)
+        
+        combobox_style = "QComboBox { background-color: #4CAFDF; color: #000000; border: 1px solid #4D94FF; border-radius: 5px; padding: 1px 18px 1px 3px; }"
+
+        self.comboBox.setStyleSheet(combobox_style)
+        
                  
 if __name__ == "__main__":
     app = QApplication(sys.argv)

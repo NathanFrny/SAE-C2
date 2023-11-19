@@ -6,12 +6,31 @@ from PyQt6.QtCore import pyqtSignal, Qt
 
 
 class SliderWidget(QWidget):
-    
+    """
+    A custom widget representing a slider with an associated QLineEdit for input.
+
+    Attributes:
+        valueChanged (pyqtSignal): Signal emitted when the slider value changes.
+
+    Methods:
+        __init__(self: SliderWidget, valueMin: int = 0, valueMax: int = 100, ValueDefault: int = 0):
+            Initializes the SliderWidget with the specified minimum, maximum, and default values.
+
+    """
     valueChanged : pyqtSignal = pyqtSignal(int)
     
     
     #construtor
     def __init__(self: SliderWidget, valueMin : int = 0, valueMax : int = 100, ValueDefault : int = 0):
+        """
+        Initializes the SliderWidget.
+
+        Args:
+            valueMin (int): The minimum value of the slider.
+            valueMax (int): The maximum value of the slider.
+            ValueDefault (int): The default value of the slider.
+
+        """
         super().__init__()
         
         
@@ -56,6 +75,12 @@ class SliderWidget(QWidget):
     
     #callback slider
     def cb_slider(self: SliderWidget):
+        """
+        Callback method called when the slider value changes.
+
+        Updates the value attribute and emits the valueChanged signal.
+
+        """
         print("SliderWidget.cb_slider()")
         self.value = self.slider.value()
         self.inputText.setText(str(self.value))
@@ -64,6 +89,12 @@ class SliderWidget(QWidget):
 
     #callback text
     def cb_text(self : SliderWidget):
+        """
+        Callback method called when the slider value changes.
+
+        Updates the value attribute and emits the valueChanged signal.
+
+        """
         print("SliderWidget.cb_text()")      
         self.value = max(min(int(self.inputText.text()), self._max), self._min)
         self.slider.setValue(self.value)
