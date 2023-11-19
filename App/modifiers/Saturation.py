@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ImageDecorator import ImageDecorator
+from .ImageDecorator import ImageDecorator
 import numpy as np
 import cv2
 
@@ -9,6 +9,7 @@ class Saturation(ImageDecorator):
         self.factor = factor
 
     def apply(self, image):
+        print("Saturation")
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV).astype(np.float32)
         h, s, v = cv2.split(hsv)
         

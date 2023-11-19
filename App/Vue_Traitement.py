@@ -1,13 +1,17 @@
 from __future__ import annotations
 import sys
+import os
+import numpy as np
+from io import BytesIO
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
 from PyQt6.QtGui import QPixmap, QImage, QIntValidator
 from PyQt6.QtCore import Qt, pyqtSignal
+from modifiers import Blur, Saturation, Gamma, Image
+from gradient import GradientSelector, GradientStrategy, LinearGradient, SubtractGradient
 import cv2
+from PIL import Image as PILImage
 from ImageWidget import ImageWidget
 from SliderWidget import SliderWidget
-import numpy as np
-from matplotlib.pyplot import imread
 
 #class vue affichage interface traitement d'image
 class Vue_Traitement(QWidget):
@@ -43,8 +47,8 @@ class Vue_Traitement(QWidget):
         # QComboBox used to select the method
         self.comboBox = QComboBox(self)
         self.comboBox.addItem("Choisir une méthode")
-        self.comboBox.addItem("Methode 1")
-        self.comboBox.addItem("Methode 2")
+        self.comboBox.addItem("Soustraction du gradient")
+        self.comboBox.addItem("Gradient linéaire")
         self.comboBox.addItem("Methode 3")
         
         # used to display the dynamic content of the QComboBox
@@ -73,7 +77,7 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.gamma_checkbox)
         
         # QSlider used to change the brightness of the image
-        self.gamma_widget = SliderWidget(0, 100, 0)
+        self.gamma_widget = SliderWidget(1, 5, 1)
         self.leftlayout.addWidget(self.gamma_widget)
         
         # QSpacerItem used to add space between widgets
@@ -84,7 +88,7 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.saturation_checkbox)
     
         # QSlider used to change the saturation of the image
-        self.saturation_widget = SliderWidget(0, 100, 0)
+        self.saturation_widget = SliderWidget(0, 5, 0)
         self.leftlayout.addWidget(self.saturation_widget)
         
         # QSpacerItem used to add space between widgets
@@ -95,12 +99,13 @@ class Vue_Traitement(QWidget):
         self.blur_checkbox = QCheckBox("Blur")
         self.leftlayout.addWidget(self.blur_checkbox)
         
-        self.blur_widget = SliderWidget(0, 100, 0)
+        self.blur_widget = SliderWidget(1, 5, 1)
         self.leftlayout.addWidget(self.blur_widget)
             
             
         # QPushButton used to generate the image
         self.generate = QPushButton("Générer l'image")
+        self.generate.clicked.connect(self.on_generate_clicked)
         self.leftlayout.addWidget(self.generate)
         
         
@@ -149,6 +154,9 @@ class Vue_Traitement(QWidget):
         self.previous.clicked.connect(self.show_previous_image)
         self.next.clicked.connect(self.show_next_image)
 
+        # Initialize the local image that is modified by decorators (Blur, saturation, gamma)
+        self.local_image = None
+
         # Initialize signals
         self.control_gamma_signal()
         self.control_saturation_signal()
@@ -159,29 +167,55 @@ class Vue_Traitement(QWidget):
         self.loaded_images = []
         self.current_image_index = 0
 
+        # Initialize decorators
+        self.gamma_decorator = Gamma(1)
+        self.saturation_decorator = Saturation(0)
+        self.blur_decorator = Blur(1)
+
+        # Initialize path for new images
+        self.path = ""
+
+        # Initialize Gradient subtraction methods
+        self.gradient_method: GradientStrategy = None
+        self.gradient_selector = GradientSelector()
+
 
     # Callback methods
     # signal and update for the gamma filter
     def control_gamma_signal(self):
         if self.gamma_checkbox.isChecked():
-            self.gamma_widget.valueChanged.emit(self.gammaValue)
-            self.gammaValue.emit(self.gammaValue)
-            self.update_image("gamma")
+            if self.local_image:
+                self.local_image = self.local_image.add_decorator(self.gamma_decorator)
+                self.update_image(self.gamma_decorator)
+                self.gamma_widget.valueChanged.emit(self.gammaValue)
+                self.gammaValue.emit(self.gammaValue)
+        else:
+            if self.local_image:
+                self.local_image.remove_decorator(Gamma)
     
     # signal and update for the saturation filter
     def control_saturation_signal(self):
         if self.saturation_checkbox.isChecked():
-            self.saturation_widget.valueChanged.emit(self.saturationValue)
-            self.saturationValue.emit(self.saturationValue)
-            self.update_image("saturation")
+            if self.local_image:
+                self.local_image = self.local_image.add_decorator(self.saturation_decorator)
+                self.update_image(self.saturation_decorator)
+                self.saturation_widget.valueChanged.emit(self.saturationValue)
+                self.saturationValue.emit(self.saturationValue)
+        else:
+            if self.local_image:
+                self.local_image.remove_decorator(Saturation)
             
     # signal and update for the blur filter
     def control_blur_signal(self):
         if self.blur_checkbox.isChecked():
-            self.blur_widget.valueChanged.emit(self.blurValue)
-            self.blurValue.emit(self.blurValue)
-            
-            self.update_image("blur")
+            if self.local_image:
+                self.local_image = self.local_image.add_decorator(self.blur_decorator)
+                self.update_image(self.blur_decorator)
+                self.blur_widget.valueChanged.emit(self.blurValue)
+                self.blurValue.emit(self.blurValue)
+        else:
+            if self.local_image:
+                self.local_image.remove_decorator(Blur)
             
     # signal for the generate button
     def generate_signal(self):
@@ -196,9 +230,17 @@ class Vue_Traitement(QWidget):
         self.dynamic_content_label.clear()
 
         # Show different content based on the selected option
-        if selected_option == "Methode 1":
+        if selected_option == "Soustraction du gradient":
+            if self.path:
+                gradient_path = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
+                self.gradient_method = SubtractGradient(self.path, gradient_path)
+                self.gradient_selector.method = self.gradient_method
             self.show_method_1_content()
-        elif selected_option == "Methode 2":
+        elif selected_option == "Gradient linéaire":
+            if self.path:
+                print("linéaire")
+                self.gradient_method = LinearGradient(self.path)
+                self.gradient_selector.method = self.gradient_method
             self.show_method_2_content()
         elif selected_option == "Methode 3":
             self.show_method_3_content()
@@ -220,21 +262,45 @@ class Vue_Traitement(QWidget):
 
     # Load an image
     def load_image(self):
-        chemin = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
-        if chemin:
-            img = imread(chemin)/255
-            self.loaded_images.append(img)
-            self.current_image_index = len(self.loaded_images) - 1
-            self.load_label.setText(f"Image chargée : {chemin}")
+        self.path = QFileDialog.getOpenFileName(self, "Ouvrir une image", "", "Images (*.png *.jpg)")[0]
+        self.local_image = Image(self.path)
+        if self.gradient_method:
+            self.gradient_method.path = self.path
+        if self.path:
+            from matplotlib.pyplot import imread
+            img : np.ndarray = imread(self.path)
+
+            _, ext = os.path.splitext(self.path)
+
+            # convert image to jpg
+            if not ext.lower() == '.jpg':
+                
+                img, temp_path = self.convert_to_jpg(img, self.path, ext)
+
+                self.loaded_images.append(img)
+                self.current_image_index = len(self.loaded_images) - 1
+                self.load_label.setText(f"Image chargée : {temp_path}")
+                self.image.setPixmap(img)
+            else:
+                self.local_image = Image(self.path)
+                img : np.ndarray = imread(self.path) / 255
+                self.loaded_images.append(img)
+                self.current_image_index = len(self.loaded_images) - 1
+                self.load_label.setText(f"Image chargée : {self.path}")
+                self.image.setPixmap(img)
             
-            self.image.setPixmap(img)
             
     #Methode use to apply the decorator on the image
     def update_image(self: Vue_Traitement, decorator):
-        if len(self.loaded_images) > 0:
-            img : np.ndarray = self.loaded_images[self.current_image_index]
-            img.apply(decorator)
-            img : np.ndarray = img/255
+        if self.path:
+            self.local_image.apply(decorator)
+            img : np.ndarray = self.local_image.image/255
+            self.image.setPixmap(img)
+
+    def on_generate_clicked(self: Vue_Traitement):
+        if self.gradient_method:
+            depolluted_image = self.gradient_selector.method.generate()
+            img : np.ndarray = depolluted_image / 255
             self.image.setPixmap(img)
 
     # Method to select the previous image
@@ -253,7 +319,27 @@ class Vue_Traitement(QWidget):
     def show_current_image(self):
         self.image.setPixmap(self.loaded_images[self.current_image_index])
     
-    
+    def convert_to_jpg(self: Vue_Traitement, img: np.ndarray, path: str, ext: str):
+        from matplotlib.pyplot import imread
+        img = PILImage.fromarray((img * 255).astype(np.uint8))
+
+        img = img.convert('RGB')
+
+        buffer = BytesIO()
+        img.save(buffer, format='JPEG')
+        buffer.seek(0)
+
+        temp_path = path.replace(ext, '.jpg')
+        with open(temp_path, 'wb') as f:
+            f.write(buffer.getvalue())
+
+        _, ext = os.path.splitext(temp_path)
+        self.local_image = Image(temp_path)
+        img: np.ndarray = imread(temp_path) / 255
+
+        os.remove(temp_path)
+
+        return img, temp_path
                  
 if __name__ == "__main__":
     app = QApplication(sys.argv)

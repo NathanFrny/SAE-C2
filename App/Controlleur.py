@@ -2,6 +2,7 @@ import sys
 import Vue_Traitement
 import SliderWidget
 import Traitement
+from modifiers import Blur, Saturation, Gamma, Image
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, pyqtSignal
 
@@ -19,18 +20,30 @@ class Controlleur:
     # Les slots qui seront appelés lorsque les valeurs des sliders changent
     def on_gamma_changed(self):
         if self.vue.gamma_checkbox.isChecked():
-            self.update_image(self.vue.gamma_widget.value)
+            if self.vue.local_image:
+                self.vue.local_image.remove_decorator(Gamma)
+                self.vue.gamma_decorator = Gamma(self.vue.gamma_widget.value)
+                self.vue.local_image = self.vue.local_image.add_decorator(self.vue.gamma_decorator)
+                self.update_image(self.vue.gamma_decorator)
 
     def on_saturation_changed(self):
         if self.vue.saturation_checkbox.isChecked():
-            self.update_image(self.vue.saturation_widget.value)
+            if self.vue.local_image:
+                self.vue.local_image.remove_decorator(Saturation)
+                self.vue.saturation_decorator = Saturation(self.vue.saturation_widget.value)
+                self.vue.local_image = self.vue.local_image.add_decorator(self.vue.saturation_decorator)
+                self.update_image(self.vue.saturation_decorator)
 
     def on_blur_changed(self):
         if self.vue.blur_checkbox.isChecked():
-            self.update_image(self.vue.blur_widget.value)
+            if self.vue.local_image:
+                self.vue.local_image.remove_decorator(Blur)
+                self.vue.blur_decorator = Blur(self.vue.blur_widget.value)
+                self.vue.local_image = self.vue.local_image.add_decorator(self.vue.blur_decorator)
+                self.update_image(self.vue.blur_decorator)
 
-    def update_image(self, value):
-        print(value)
+    def update_image(self, decorator):
+        self.vue.update_image(decorator)
 
 
 if __name__ == "__main__":
