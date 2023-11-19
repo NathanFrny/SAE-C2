@@ -1,10 +1,32 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# Authors : Bonnel Noah
+# Copyright (C) 2023 Bonnel Noah
+# 
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Imports
+
 import sys
 import Vue_Traitement
-import SliderWidget
-from modifiers import Blur, Saturation, Gamma, Image
+from modifiers import Blur, Saturation, Gamma
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, pyqtSignal
+# ----------------------------------------------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Class
 class Controlleur:
     """
         This class serves as the controller for the image processing application.
@@ -86,10 +108,17 @@ class Controlleur:
         """
         self.vue.update_image(decorator)
 
+# ----------------------------------------------------------------------------------------------------------------------
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Main
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     controlleur = Controlleur()
     controlleur.vue.show()
     app.exec()
+
+# ----------------------------------------------------------------------------------------------------------------------
+
         

@@ -1,8 +1,30 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# Authors : Fourny Nathan
+# Copyright (C) 2023 Fourny Nathan
+# 
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Imports
 from __future__ import annotations
 from .GradientStrategy import GradientStrategy
-from PyQt6.QtWidgets import QFileDialog
 import cv2
+# ----------------------------------------------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Class
 class SubtractGradient(GradientStrategy):
     """
     A class representing a simple gradient subtraction strategy. It subtracts a given gradient from the image.
@@ -41,3 +63,4 @@ class SubtractGradient(GradientStrategy):
         result = cv2.subtract(self.img, gradient)
         result = cv2.subtract(result, gradient)
         return result
+# ----------------------------------------------------------------------------------------------------------------------

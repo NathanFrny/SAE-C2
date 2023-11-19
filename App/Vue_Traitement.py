@@ -1,18 +1,40 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#
+# Authors : Bonnel Noah
+# Copyright (C) 2023 Bonnel Noah
+# 
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Imports
 from __future__ import annotations
 import sys
 import os
 import numpy as np
 from matplotlib.pyplot import imread
 from io import BytesIO
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSlider, QSpacerItem, QSizePolicy, QCheckBox, QLineEdit
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QComboBox, QSpacerItem, QSizePolicy, QCheckBox
 from PyQt6.QtCore import pyqtSignal
 from modifiers import Blur, Saturation, Gamma, Image
 from gradient import GradientSelector, GradientStrategy, LinearGradient, SubtractGradient
 from PIL import Image as PILImage
 from ImageWidget import ImageWidget
 from SliderWidget import SliderWidget
+# ----------------------------------------------------------------------------------------------------------------------
 
-#class vue affichage interface traitement d'image
+# ----------------------------------------------------------------------------------------------------------------------
+# Main
 class Vue_Traitement(QWidget):
     """
     Class for the image processing interface.
@@ -121,7 +143,7 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.gamma_checkbox)
         
         # QSlider used to change the brightness of the image
-        self.gamma_widget = SliderWidget(0, 5, 0)
+        self.gamma_widget = SliderWidget(1, 5, 1)
         self.leftlayout.addWidget(self.gamma_widget)
         
         # QSpacerItem used to add space between widgets
@@ -132,7 +154,7 @@ class Vue_Traitement(QWidget):
         self.leftlayout.addWidget(self.saturation_checkbox)
     
         # QSlider used to change the saturation of the image
-        self.saturation_widget = SliderWidget(0, 5, 0)
+        self.saturation_widget = SliderWidget(0, 5, 1)
         self.leftlayout.addWidget(self.saturation_widget)
         
         # QSpacerItem used to add space between widgets
@@ -143,7 +165,7 @@ class Vue_Traitement(QWidget):
         self.blur_checkbox = QCheckBox("Blur")
         self.leftlayout.addWidget(self.blur_checkbox)
         
-        self.blur_widget = SliderWidget(0, 5, 0)
+        self.blur_widget = SliderWidget(1, 5, 1)
         self.leftlayout.addWidget(self.blur_widget)
             
             
@@ -478,10 +500,14 @@ class Vue_Traitement(QWidget):
         combobox_style = "QComboBox { background-color: #4CAFDF; color: #000000; border: 1px solid #4D94FF; border-radius: 5px; padding: 1px 18px 1px 3px; }"
 
         self.comboBox.setStyleSheet(combobox_style)
+# ----------------------------------------------------------------------------------------------------------------------
+
         
-                 
+# ----------------------------------------------------------------------------------------------------------------------
+# Main
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     fenetre = Vue_Traitement()
     fenetre.show()
     app.exec()
+# ----------------------------------------------------------------------------------------------------------------------
