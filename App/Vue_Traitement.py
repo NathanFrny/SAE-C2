@@ -18,7 +18,7 @@ class Vue_Traitement(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Traitement d'images")
-        self.setFixedSize(800, 500)
+        self.setFixedSize(1000, 500)
         
         self.mainlayout = QHBoxLayout()
         
@@ -206,6 +206,8 @@ class Vue_Traitement(QWidget):
             import numpy as np
             from matplotlib.pyplot import imread
             img : np.ndarray = imread(chemin)/255
+
+          
             
             self.load_label.setText(f"Image chargée : {chemin}")
             
